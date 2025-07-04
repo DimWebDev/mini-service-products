@@ -65,3 +65,6 @@ docker-compose.*.yml
 # Misc
 .coverage.*
 tmp/
+
+
+output.txt

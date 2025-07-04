@@ -1,0 +1,67 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extension build artifacts
+*.so
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Poetry environment
+# (if you ever create the venv inside the project tree)
+.poetry/
+
+# Poetry lock file backup
+poetry.lock~
+
+# IDEs and editors
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# macOS
+.DS_Store
+
+# Linux
+*~
+
+# Logs
+*.log
+logs/
+
+# Test / coverage
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Mypy / type checkers
+.mypy_cache/
+.dmypy.json
+
+# Docker Compose override files
+docker-compose.override.yml
+docker-compose.*.yml
+
+# Environment variables
+.env
+.env.*       # e.g. .env.local, .env.test
+
+# SQLite (if ever accidentally added)
+*.db
+*.sqlite3
+
+# Misc
+.coverage.*
+tmp/

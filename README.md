@@ -181,3 +181,43 @@ CMD ["sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --
 * **Git Setup** ensures clean version control and hides credentials.
 * **Optional Poetry flow** lets you run directly on the host by pointing at `localhost`.
 * **Alembic migrations** version every schema change; you generate them manually and can apply them either manually or automatically at container start.
+
+
+
+## 6. Testing with Pytest & Coverage
+
+We isolate our tests against a throw-away SQLite database, reset state between each test, and measure how much of our `app/` code is exercised.
+
+### 6.1 Test-only Configuration
+
+* **`.env.test`** in the repo root overrides your normal `DATABASE_URL` to point at `sqlite:///./test.db`.
+* **`pytest`** (via `pytest-dotenv`) loads `.env` then `.env.test` automatically, so your application code simply picks up the SQLite URL when running under pytest.
+* A **session-scoped fixture** in `tests/conftest.py` calls `init_db()` **once** before any tests run, ensuring that the SQLite file has all tables created.
+
+### 6.2 Per-Test Cleanup
+
+* An **autouse**, function-scoped fixture in `tests/test_products.py` truncates or deletes from the `product` table **before each test**, depending on the dialect.
+
+    * **SQLite**: `DELETE FROM product`
+    * **Postgres**: `TRUNCATE TABLE product RESTART IDENTITY`
+* This guarantees **state isolation** between tests without manual teardown.
+
+### 6.3 Writing the Test
+
+* Use FastAPI’s `TestClient(app)` to drive your endpoints.
+* Example flow: issue a `POST /products`, assert `201` and returned ID, then `GET /products` and assert the list length.
+
+### 6.4 Running & Measuring Coverage
+
+With everything wired in `pytest.ini` (via `addopts` and `env_files`), simply run:
+
+```bash
+poetry install
+poetry run pytest
+```
+
+You’ll see:
+
+1. **SQLite schema** bootstrapped once.
+2. **Per-test cleanup** applied automatically.
+3. A **coverage report** showing line and branch coverage for all modules under `app/`.

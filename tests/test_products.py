@@ -1,19 +1,27 @@
-import os, time, uuid, subprocess, textwrap
+# tests/test_products.py
 import pytest
 from fastapi.testclient import TestClient
+from sqlalchemy import text
+
 from app.main import app
+from app.database import engine
 
 client = TestClient(app)
 
+
 @pytest.fixture(autouse=True, scope="function")
 def _clean_table():
-    """Truncate table between tests to keep state isolated."""
-    from sqlalchemy import text
-    from app.database import engine
+    """Clear the product table between tests, whatever the DB."""
     with engine.connect() as conn:
-        conn.execute(text("TRUNCATE TABLE product RESTART IDENTITY"))
+        if engine.dialect.name == "sqlite":
+            # SQLite: just delete rows; sequence auto-resets with ROWID tables
+            conn.execute(text("DELETE FROM product"))
+        else:
+            # Postgres (and other dialects that support it)
+            conn.execute(text("TRUNCATE TABLE product RESTART IDENTITY"))
         conn.commit()
     yield
+
 
 def test_create_then_list():
     data = {"name": "Book", "price": 9.99}
